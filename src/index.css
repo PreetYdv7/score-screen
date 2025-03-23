@@ -49,6 +49,7 @@ body {
 }
 
 .box {
+  display: flex;
   width: 42rem;
   max-width: 42rem;
   background-color: var(--color-background-500);
@@ -137,12 +138,15 @@ body {
 .list {
   list-style: none;
   padding: 0.8rem 0;
-  overflow: hidden; /* Remove scrollbars */
+  overflow-y: auto;
+  scrollbar-width: none;
 }
-
+.list::-webkit-scrollbar {
+  display: none; /* Hides scrollbar in Chrome, Safari, Edge */
+}
 .list-watched {
   height: calc(100% - 9rem);
-  overflow: hidden; /* Remove scrollbars */
+  overflow-y: auto;
 }
 
 .list li {
