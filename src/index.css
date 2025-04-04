@@ -244,6 +244,8 @@ body {
 .details {
   line-height: 1.4;
   font-size: 1.4rem;
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 
 .details header {
@@ -323,4 +325,22 @@ body {
   font-size: 2.4rem;
   font-weight: bold;
   cursor: pointer;
+}
+.btn-modern-back {
+  position: absolute;
+  top: 0.8rem;
+  left: 0.8rem;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent dark background */
+  color: var(--color-text);
+  border: none;
+  border-radius: 50%;
+  padding: 0.8rem;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn-modern-back:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
 }
