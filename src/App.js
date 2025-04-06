@@ -313,6 +313,13 @@ const MovieDetails = ({
     [selectedID]
   );
 
+  useEffect(
+    function () {
+      document.title = `Movie | ${title}`;
+    },
+    [title]
+  );
+
   return (
     <div className="details">
       {isLoading ? (
