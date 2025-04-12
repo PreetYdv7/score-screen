@@ -1,29 +1,6 @@
 import { useEffect, useState } from "react";
 import StarRating from "./starRating";
 
-const tempWatchedData = [
-  {
-    imdbID: "tt1375666",
-    Title: "Inception",
-    Year: "2010",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
-    runtime: 148,
-    imdbRating: 8.8,
-    userRating: 10,
-  },
-  {
-    imdbID: "tt0088763",
-    Title: "Back to the Future",
-    Year: "1985",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BZmU0M2Y1OGUtZjIxNi00ZjBkLTg1MjgtOWIyNThiZWIwYjRiXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
-    runtime: 116,
-    imdbRating: 8.5,
-    userRating: 9,
-  },
-];
-
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
@@ -55,13 +32,24 @@ export default function App() {
 
   useEffect(
     function () {
+      const controller = new AbortController();
+
       async function fetchMovies() {
         try {
           setIsLoading(true);
           setError("");
 
+          // Don't fetch if query is empty
+          if (!query.length) {
+            setMovies([]);
+            setError("");
+            setIsLoading(false);
+            return;
+          }
+
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+            { signal: controller.signal }
           );
 
           if (!res.ok) throw new Error("Something went wrong!");
@@ -70,23 +58,28 @@ export default function App() {
           if (data.Response === "False") throw new Error("No results Found");
 
           setMovies(data.Search);
+          setError("");
         } catch (err) {
           console.error(err.message);
-          setError(err.message);
+          // Only set error state if it's not an AbortError
+          if (err.name !== "AbortError") {
+            setError(err.message);
+          }
         } finally {
-          setIsLoading(false);
-        }
-        if (!query.length) {
-          setMovies([]);
-          setError("");
-          return;
+          if (!controller.signal.aborted) {
+            setIsLoading(false);
+          }
         }
       }
+      handleCloseMovieDetails();
       fetchMovies();
+
+      return function () {
+        controller.abort();
+      };
     },
     [query]
   );
-
   return (
     <>
       <NavBar movies={movies}>
@@ -195,28 +188,6 @@ const Box = ({ children }) => {
   );
 };
 
-const WatchedBox = () => {
-  const [watched, setWatched] = useState(tempWatchedData);
-  const [isOpen2, setIsOpen2] = useState(true);
-
-  return (
-    <div className="box">
-      <button
-        className="btn-toggle"
-        onClick={() => setIsOpen2((open) => !open)}
-      >
-        {isOpen2 ? "–" : "+"}
-      </button>
-      {isOpen2 && (
-        <>
-          <WatchedSummary watched={watched} />
-          <WatchedList watched={watched} />
-        </>
-      )}
-    </div>
-  );
-};
-
 const MoviesList = ({ movies, onSelectMovie }) => {
   return (
     <ul className="list list-movies">
@@ -296,6 +267,20 @@ const MovieDetails = ({
     onAddWatchedMovies(newWatchedMovie);
     onCloseDetails();
   };
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === "Escape") {
+          onCloseDetails();
+        }
+      }
+      document.addEventListener("keydown", callback);
+      return function () {
+        document.removeEventListener("keydown", callback);
+      };
+    },
+    [onCloseDetails]
+  );
 
   useEffect(
     function () {
@@ -316,6 +301,10 @@ const MovieDetails = ({
   useEffect(
     function () {
       document.title = `Movie | ${title}`;
+
+      return function () {
+        document.title = "Score Screen";
+      };
     },
     [title]
   );
