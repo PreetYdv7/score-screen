@@ -21,8 +21,7 @@ export default function App() {
     handleCloseMovieDetails
   );
 
-  const [watched, setWatched] = useLocalStorageState([], watched);
-
+  const [watched, setWatched] = useLocalStorageState([], " watched");
   const handleSelectedMovie = (id) => {
     setSelectedID(id);
   };
