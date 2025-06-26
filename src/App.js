@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import StarRating from "./starRating";
 import { useMovies } from "./useMovies";
 import { useLocalStorageState } from "./useLocalStorageState";
+import { useKey } from "./usekEy";
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -21,7 +22,7 @@ export default function App() {
     handleCloseMovieDetails
   );
 
-  const [watched, setWatched] = useLocalStorageState([], " watched");
+  const [watched, setWatched] = useLocalStorageState([], " ");
   const handleSelectedMovie = (id) => {
     setSelectedID(id);
   };
@@ -227,6 +228,9 @@ const MovieDetails = ({
     onAddWatchedMovies(newWatchedMovie);
     onCloseDetails();
   };
+
+  useKey("Escape", onCloseDetails);
+
   useEffect(
     function () {
       function callback(e) {
